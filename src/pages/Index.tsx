@@ -1,11 +1,48 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import { SearchBar } from '@/components/SearchBar';
+import { WeatherWidget } from '@/components/WeatherWidget';
+import { RoutePanel } from '@/components/RoutePanel';
+import { MapView } from '@/components/MapView';
 
 const Index = () => {
+  const [isSearching, setIsSearching] = useState(false);
+  const [showRoutes, setShowRoutes] = useState(false);
+  const [selectedRoute, setSelectedRoute] = useState<'hot' | 'cool' | null>(null);
+
+  const handleSearch = () => {
+    setIsSearching(true);
+    setTimeout(() => {
+      setIsSearching(false);
+      setShowRoutes(true);
+      setSelectedRoute('cool');
+    }, 1500);
+  };
+
+  const handleClosePanel = () => {
+    setShowRoutes(false);
+    setSelectedRoute(null);
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
+    <div className="fixed inset-0 w-full h-full overflow-hidden bg-background">
+      {/* Full screen map */}
+      <MapView showRoutes={showRoutes} selectedRoute={selectedRoute} />
+      
+      {/* UI Overlays */}
+      {!showRoutes && <SearchBar onSearch={handleSearch} isSearching={isSearching} />}
+      
+      <WeatherWidget />
+      
+      <RoutePanel
+        isVisible={showRoutes}
+        onClose={handleClosePanel}
+        selectedRoute={selectedRoute}
+        onSelectRoute={setSelectedRoute}
+      />
+
+      {/* Attribution */}
+      <div className="fixed bottom-2 left-2 z-[500] text-[10px] text-muted-foreground/60">
+        © OpenStreetMap contributors
       </div>
     </div>
   );
