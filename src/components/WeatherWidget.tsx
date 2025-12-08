@@ -1,61 +1,88 @@
-import { Sun, AlertTriangle, Loader2 } from 'lucide-react';
+import { Sun, AlertTriangle, Loader2, Shield, Umbrella } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-interface TemperatureData {
+interface WeatherData {
   temperature: number;
+  uvIndex: number;
   stationName: string;
-  timestamp: string;
+}
+
+function getUVAdvice(uvIndex: number): { level: string; advice: string; color: string } {
+  if (uvIndex <= 2) {
+    return { level: 'Low', advice: 'Safe to be outdoors', color: 'text-green-500' };
+  } else if (uvIndex <= 5) {
+    return { level: 'Moderate', advice: 'Seek shade during midday', color: 'text-yellow-500' };
+  } else if (uvIndex <= 7) {
+    return { level: 'High', advice: 'Stay sheltered!', color: 'text-orange-500' };
+  } else if (uvIndex <= 10) {
+    return { level: 'Very High', advice: 'Avoid sun exposure!', color: 'text-red-500' };
+  } else {
+    return { level: 'Extreme', advice: 'Stay indoors!', color: 'text-purple-500' };
+  }
 }
 
 export function WeatherWidget() {
-  const [tempData, setTempData] = useState<TemperatureData | null>(null);
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchTemperature() {
+    async function fetchWeatherData() {
       try {
-        const response = await fetch('https://api-open.data.gov.sg/v2/real-time/api/air-temperature');
-        const data = await response.json();
-        
-        if (data.code === 0 && data.data?.readings?.[0]?.data) {
-          // Find Paya Lebar station (S06) - closest to Punggol area
-          // Or Pulau Ubin (S106) which is also nearby
-          const readings = data.data.readings[0].data;
-          const stations = data.data.stations;
-          
-          // Try to find Paya Lebar or use first available
+        // Fetch both temperature and UV in parallel
+        const [tempResponse, uvResponse] = await Promise.all([
+          fetch('https://api-open.data.gov.sg/v2/real-time/api/air-temperature'),
+          fetch('https://api-open.data.gov.sg/v2/real-time/api/uv'),
+        ]);
+
+        const [tempData, uvData] = await Promise.all([
+          tempResponse.json(),
+          uvResponse.json(),
+        ]);
+
+        let temperature = 33;
+        let stationName = 'Singapore';
+
+        if (tempData.code === 0 && tempData.data?.readings?.[0]?.data) {
+          const readings = tempData.data.readings[0].data;
+          const stations = tempData.data.stations;
           const payaLebar = readings.find((r: any) => r.stationId === 'S06');
           const reading = payaLebar || readings[0];
-          
           const station = stations.find((s: any) => s.id === reading.stationId);
-          
-          setTempData({
-            temperature: reading.value,
-            stationName: station?.name || 'Singapore',
-            timestamp: data.data.readings[0].timestamp,
-          });
+          temperature = reading.value;
+          stationName = station?.name || 'Singapore';
         }
+
+        // Get most recent UV index
+        let uvIndex = 0;
+        if (uvData.code === 0 && uvData.data?.records?.[0]?.index) {
+          const uvReadings = uvData.data.records[0].index;
+          // Get the most recent reading (first in array)
+          uvIndex = uvReadings[0]?.value ?? 0;
+        }
+
+        setWeatherData({ temperature, uvIndex, stationName });
       } catch (error) {
-        console.error('Failed to fetch temperature:', error);
+        console.error('Failed to fetch weather data:', error);
       } finally {
         setIsLoading(false);
       }
     }
 
-    fetchTemperature();
-    // Refresh every 5 minutes
-    const interval = setInterval(fetchTemperature, 5 * 60 * 1000);
+    fetchWeatherData();
+    const interval = setInterval(fetchWeatherData, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
-  const temperature = tempData?.temperature ?? 33;
-  // Estimate feels-like (simplified: add 3-5°C for humidity)
+  const temperature = weatherData?.temperature ?? 33;
+  const uvIndex = weatherData?.uvIndex ?? 0;
   const feelsLike = Math.round(temperature + 4);
   const isHot = temperature >= 30;
+  const uvAdvice = getUVAdvice(uvIndex);
 
   return (
-    <div className="absolute right-4 top-20 z-[1000] md:top-4">
-      <div className="bg-card/95 backdrop-blur-xl rounded-xl shadow-lg border border-border/50 p-3">
+    <div className="absolute right-4 top-4 z-[1000]">
+      <div className="bg-card/95 backdrop-blur-xl rounded-xl shadow-lg border border-border/50 p-3 space-y-2">
+        {/* Temperature Row */}
         <div className="flex items-center gap-2">
           <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${isHot ? 'bg-hot/10' : 'bg-primary/10'}`}>
             {isLoading ? (
@@ -73,15 +100,30 @@ export function WeatherWidget() {
                 (Feels {feelsLike}°C)
               </span>
             </div>
+          </div>
+        </div>
+
+        {/* UV Index Row */}
+        <div className="flex items-center gap-2 pt-1 border-t border-border/30">
+          <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${uvIndex > 5 ? 'bg-hot/10' : 'bg-primary/10'}`}>
+            {uvIndex > 5 ? (
+              <AlertTriangle className={`h-5 w-5 ${uvAdvice.color}`} />
+            ) : (
+              <Shield className={`h-5 w-5 ${uvAdvice.color}`} />
+            )}
+          </div>
+          <div className="text-left">
+            <div className="flex items-center gap-1.5">
+              <span className="font-semibold text-foreground text-sm">
+                UV {uvIndex}
+              </span>
+              <span className={`text-xs font-medium ${uvAdvice.color}`}>
+                {uvAdvice.level}
+              </span>
+            </div>
             <div className="flex items-center gap-1">
-              {isHot ? (
-                <>
-                  <AlertTriangle className="h-3 w-3 text-hot" />
-                  <span className="text-xs font-medium text-hot">Hot Weather</span>
-                </>
-              ) : (
-                <span className="text-xs text-muted-foreground">Pleasant</span>
-              )}
+              <Umbrella className="h-3 w-3 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">{uvAdvice.advice}</span>
             </div>
           </div>
         </div>
