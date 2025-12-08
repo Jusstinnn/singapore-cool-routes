@@ -2,7 +2,8 @@
 
 const ONEMAP_API_URL = 'https://www.onemap.gov.sg/api/public/routingsvc/route';
 
-// Token provided by user - short-lived JWT
+// Token provided by user - short-lived JWT (expires after ~3 days)
+// User needs to get a new token from https://www.onemap.gov.sg/apidocs/ when this expires
 const ONEMAP_TOKEN = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxMDM4NiwiZm9yZXZlciI6ZmFsc2UsImlzcyI6Ik9uZU1hcCIsImlhdCI6MTc2NTIwNDcxNiwibmJmIjoxNzY1MjA0NzE2LCJleHAiOjE3NjU0NjM5MTYsImp0aSI6ImE2ZjJlYzExLTI2ZTMtNDQ5ZC1iMmYxLTNhMzE2Yzc1ODYxMCJ9.0CqHcGYGe3g-yHPV9eYEoVVCIKyk5-Bc7HEfEIgY_mNLmQuPq5I1MC3XVadxa3SPPD9e3B1Q1FyG6faz1a3SyUBc4USJX4QZj-kxpFoV4i373QP3EMCUlPQI14pksES3Nj---T5iwiXr1POITMc3L3MgRtkRLpkTWw-IPpKs-XGxyavJJnXvboVaoXa1I6z7fu8fTsslEXixBQWr3801JDOxRrBY3_KBNhKimiTVVeBjfymfRmcEmxAv--zXbKZrXC0SIuQVxk18txhIpGLX_Aq-LDul4AZfhnFtwFeecox89NtS5Wl4IFdbgXhqH1eFXIk4YXGlHsekNlQsMgww';
 
 export interface RouteResult {
@@ -11,6 +12,66 @@ export interface RouteResult {
   totalTime: number; // in seconds
   instructions: string[];
 }
+
+// Fallback hardcoded routes when API fails
+const FALLBACK_ROUTES = {
+  waterway: {
+    hot: [
+      [1.3784, 103.9097], // SIT
+      [1.3820, 103.9085],
+      [1.3870, 103.9050],
+      [1.3950, 103.9020],
+      [1.4020, 103.9015],
+      [1.4066, 103.9022], // Waterway Point
+    ] as [number, number][],
+    cool: [
+      [1.3784, 103.9097], // SIT
+      [1.3800, 103.9100],
+      [1.3850, 103.9080],
+      [1.3900, 103.9070],
+      [1.3950, 103.9050],
+      [1.4000, 103.9040],
+      [1.4030, 103.9030],
+      [1.4066, 103.9022], // Waterway Point
+    ] as [number, number][],
+  },
+  coney: {
+    hot: [
+      [1.3784, 103.9097], // SIT
+      [1.3820, 103.9120],
+      [1.3880, 103.9150],
+      [1.3950, 103.9180],
+      [1.4030, 103.9200],
+      [1.4094, 103.9216], // Coney Island
+    ] as [number, number][],
+    cool: [
+      [1.3784, 103.9097], // SIT
+      [1.3810, 103.9110],
+      [1.3850, 103.9130],
+      [1.3900, 103.9150],
+      [1.3950, 103.9170],
+      [1.4020, 103.9190],
+      [1.4060, 103.9205],
+      [1.4094, 103.9216], // Coney Island
+    ] as [number, number][],
+  },
+  safra: {
+    hot: [
+      [1.3784, 103.9097], // SIT
+      [1.3820, 103.9100],
+      [1.3870, 103.9102],
+      [1.3936, 103.9104], // SAFRA Punggol
+    ] as [number, number][],
+    cool: [
+      [1.3784, 103.9097], // SIT
+      [1.3800, 103.9095],
+      [1.3830, 103.9098],
+      [1.3860, 103.9100],
+      [1.3900, 103.9102],
+      [1.3936, 103.9104], // SAFRA Punggol
+    ] as [number, number][],
+  },
+};
 
 // Decode Google Polyline encoded string to coordinates
 function decodePolyline(encoded: string): [number, number][] {
@@ -83,10 +144,7 @@ export async function getWalkingRoute(
       return null;
     }
 
-    // Decode the polyline
     const coordinates = decodePolyline(data.route_geometry);
-
-    // Extract instructions
     const instructions = data.route_instructions?.map((instruction: any[]) => instruction[9]) || [];
 
     return {
@@ -146,4 +204,9 @@ export async function getDrivingRoute(
     console.error('Error fetching route from OneMap:', error);
     return null;
   }
+}
+
+// Get fallback routes when API fails
+export function getFallbackRoutes(destination: 'waterway' | 'coney' | 'safra') {
+  return FALLBACK_ROUTES[destination];
 }

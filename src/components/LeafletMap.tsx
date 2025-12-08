@@ -136,23 +136,30 @@ export default function LeafletMap({
         });
       }
 
-      // Start marker (SIT)
+      // Start marker (SIT) - Person icon with pulsing effect
       L.marker(SIT_PUNGGOL, {
         icon: L.divIcon({
-          className: 'custom-marker',
-          html: `<div style="width:20px;height:20px;background:#14b8a6;border:3px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>`,
+          className: 'custom-marker start-marker',
+          html: `<div style="position:relative;">
+            <div style="position:absolute;width:32px;height:32px;background:rgba(20,184,166,0.3);border-radius:50%;animation:pulse 2s infinite;top:-6px;left:-6px;"></div>
+            <div style="width:20px;height:20px;background:#14b8a6;border:3px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="white"><circle cx="12" cy="8" r="4"/><path d="M12 14c-4 0-8 2-8 4v2h16v-2c0-2-4-4-8-4z"/></svg>
+            </div>
+          </div>`,
           iconSize: [20, 20],
           iconAnchor: [10, 10],
         }),
       }).addTo(routeLayersRef.current);
 
-      // End marker
+      // End marker (Destination) - Flag icon
       L.marker(endPoint, {
         icon: L.divIcon({
-          className: 'custom-marker',
-          html: `<div style="width:24px;height:24px;background:#0891b2;border:3px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>`,
-          iconSize: [24, 24],
-          iconAnchor: [12, 12],
+          className: 'custom-marker end-marker',
+          html: `<div style="width:28px;height:28px;background:#0891b2;border:3px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6h-5.6z"/></svg>
+          </div>`,
+          iconSize: [28, 28],
+          iconAnchor: [14, 14],
         }),
       }).addTo(routeLayersRef.current);
     }
