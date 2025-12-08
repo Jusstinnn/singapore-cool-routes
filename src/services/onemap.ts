@@ -128,7 +128,7 @@ export async function getWalkingRoute(
     const response = await fetch(`${ONEMAP_API_URL}?${params}`, {
       method: 'GET',
       headers: {
-        'Authorization': ONEMAP_TOKEN,
+        'Authorization': `Bearer ${ONEMAP_TOKEN}`,
       },
     });
 
@@ -175,7 +175,7 @@ export async function getDrivingRoute(
     const response = await fetch(`${ONEMAP_API_URL}?${params}`, {
       method: 'GET',
       headers: {
-        'Authorization': ONEMAP_TOKEN,
+        'Authorization': `Bearer ${ONEMAP_TOKEN}`,
       },
     });
 
