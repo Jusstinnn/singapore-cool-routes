@@ -2,7 +2,7 @@ import { Navigation2 } from 'lucide-react';
 
 export function Compass() {
   return (
-    <div className="absolute top-4 right-4 z-[1000]">
+    <div className="absolute top-4 left-4 z-[1000]">
       <div className="w-14 h-14 rounded-full bg-card/90 backdrop-blur-md border border-border/50 shadow-lg flex items-center justify-center">
         <div className="relative w-10 h-10">
           {/* Cardinal directions */}
