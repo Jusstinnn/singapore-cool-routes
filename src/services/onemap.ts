@@ -145,7 +145,20 @@ export async function getWalkingRoute(
     }
 
     const coordinates = decodePolyline(data.route_geometry);
-    const instructions = data.route_instructions?.map((instruction: any[]) => instruction[9]) || [];
+    const instructions = data.route_instructions?.map((instruction: any[]) => {
+      const text = instruction[9] || '';  // e.g., "Head Northwest", "Turn Right"
+      const street = instruction[1] || ''; // Street name
+      const distance = instruction[5] || ''; // e.g., "802m"
+      const heading = instruction[6] || ''; // e.g., "North West"
+      
+      // Build more descriptive instruction
+      if (street) {
+        return `${text} onto ${street} (${distance})`;
+      } else if (distance && distance !== '0m') {
+        return `${text} heading ${heading} for ${distance}`;
+      }
+      return text;
+    }) || [];
 
     return {
       coordinates,
@@ -192,7 +205,19 @@ export async function getDrivingRoute(
     }
 
     const coordinates = decodePolyline(data.route_geometry);
-    const instructions = data.route_instructions?.map((instruction: any[]) => instruction[9]) || [];
+    const instructions = data.route_instructions?.map((instruction: any[]) => {
+      const text = instruction[9] || '';
+      const street = instruction[1] || '';
+      const distance = instruction[5] || '';
+      const heading = instruction[6] || '';
+      
+      if (street) {
+        return `${text} onto ${street} (${distance})`;
+      } else if (distance && distance !== '0m') {
+        return `${text} heading ${heading} for ${distance}`;
+      }
+      return text;
+    }) || [];
 
     return {
       coordinates,
