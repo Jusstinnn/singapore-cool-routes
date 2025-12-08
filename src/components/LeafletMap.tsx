@@ -9,24 +9,30 @@ const ZOOM_LEVEL = 16;
 const DHOBY_GHAUT: L.LatLngExpression = [1.2988, 103.8456];
 const PLAZA_SINGAPURA: L.LatLngExpression = [1.3008, 103.8451];
 
-// Hot route - straight along the road (exposed)
+// 🔥 Hot & Fast route - direct path along exposed roads
 const HOT_ROUTE: L.LatLngExpression[] = [
-  [1.2988, 103.8456],
-  [1.2992, 103.8455],
-  [1.2998, 103.8453],
-  [1.3003, 103.8452],
-  [1.3008, 103.8451],
+  [1.2988, 103.8456],  // Start: Dhoby Ghaut MRT Exit B
+  [1.2990, 103.8455],  // Cross Orchard Road
+  [1.2993, 103.8454],  // Walk along Orchard Road (exposed)
+  [1.2996, 103.8453],  // Continue on pavement
+  [1.2999, 103.8452],  // Pass bus stop
+  [1.3002, 103.8451],  // Near taxi stand
+  [1.3005, 103.8451],  // Approach Plaza Singapura
+  [1.3008, 103.8451],  // End: Plaza Singapura entrance
 ];
 
-// Cool route - winding through buildings/underground (sheltered)
+// ❄️ ShadeWalk route - sheltered path through MRT, malls & covered walkways
 const COOL_ROUTE: L.LatLngExpression[] = [
-  [1.2988, 103.8456],
-  [1.2990, 103.8460],
-  [1.2993, 103.8462],
-  [1.2997, 103.8458],
-  [1.3002, 103.8455],
-  [1.3005, 103.8453],
-  [1.3008, 103.8451],
+  [1.2988, 103.8456],  // Start: Dhoby Ghaut MRT
+  [1.2987, 103.8460],  // Enter Dhoby Ghaut MRT underground
+  [1.2989, 103.8465],  // Through MRT station concourse
+  [1.2992, 103.8468],  // Exit to The Cathay basement
+  [1.2996, 103.8466],  // Walk through The Cathay (air-con)
+  [1.2999, 103.8462],  // Covered linkway
+  [1.3002, 103.8458],  // Underground connection
+  [1.3005, 103.8455],  // Enter Plaza Singapura B2
+  [1.3007, 103.8452],  // Through mall
+  [1.3008, 103.8451],  // End: Plaza Singapura
 ];
 
 interface LeafletMapProps {
