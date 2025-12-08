@@ -1,19 +1,27 @@
 import { useState } from 'react';
-import { Navigation, MapPin, X } from 'lucide-react';
+import { Navigation, MapPin, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { RouteCard } from '@/components/RouteCard';
 import { cn } from '@/lib/utils';
+import { type RouteResult } from '@/services/onemap';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface RoutePanelProps {
   isVisible: boolean;
   onClose: () => void;
   selectedRoute: 'hot' | 'cool' | null;
   onSelectRoute: (route: 'hot' | 'cool') => void;
+  routeInfo?: { hot: RouteResult | null; cool: RouteResult | null };
+  destination?: string;
 }
 
-export function RoutePanel({ isVisible, onClose, selectedRoute, onSelectRoute }: RoutePanelProps) {
+export function RoutePanel({ isVisible, onClose, selectedRoute, onSelectRoute, routeInfo, destination }: RoutePanelProps) {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [showInstructions, setShowInstructions] = useState(false);
 
   if (!isVisible) return null;
+
+  const currentRouteInfo = selectedRoute === 'hot' ? routeInfo?.hot : routeInfo?.cool;
+  const instructions = currentRouteInfo?.instructions?.filter(i => i && i.trim()) || [];
 
   return (
     <div className="absolute bottom-0 left-0 right-0 z-[1000]">
@@ -33,12 +41,12 @@ export function RoutePanel({ isVisible, onClose, selectedRoute, onSelectRoute }:
             <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
               <div className="flex items-center gap-1">
                 <div className="h-2 w-2 rounded-full bg-primary" />
-                <span>Dhoby Ghaut MRT</span>
+                <span>SIT Punggol</span>
               </div>
               <span>→</span>
               <div className="flex items-center gap-1">
                 <MapPin className="h-3 w-3 text-accent" />
-                <span>Plaza Singapura</span>
+                <span>{destination || 'Destination'}</span>
               </div>
             </div>
           </div>
@@ -63,6 +71,39 @@ export function RoutePanel({ isVisible, onClose, selectedRoute, onSelectRoute }:
               isSelected={selectedRoute === 'hot'}
               onSelect={() => onSelectRoute('hot')}
             />
+
+            {/* Turn-by-turn instructions */}
+            {selectedRoute && instructions.length > 0 && (
+              <div className="mt-3 border border-border/50 rounded-xl overflow-hidden">
+                <button
+                  onClick={() => setShowInstructions(!showInstructions)}
+                  className="w-full px-4 py-3 flex items-center justify-between bg-secondary/50 hover:bg-secondary/70 transition-colors"
+                >
+                  <span className="text-sm font-medium text-foreground">
+                    Directions ({instructions.length} steps)
+                  </span>
+                  {showInstructions ? (
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </button>
+                {showInstructions && (
+                  <ScrollArea className="max-h-40">
+                    <div className="p-3 space-y-2">
+                      {instructions.map((instruction, index) => (
+                        <div key={index} className="flex gap-3 text-sm">
+                          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/20 text-primary flex items-center justify-center text-xs font-medium">
+                            {index + 1}
+                          </span>
+                          <span className="text-muted-foreground pt-0.5">{instruction}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                )}
+              </div>
+            )}
 
             {/* Start navigation button */}
             {selectedRoute && (
