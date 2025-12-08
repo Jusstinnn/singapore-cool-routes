@@ -5,6 +5,7 @@ import { NavigationView } from '@/components/NavigationView';
 import { cn } from '@/lib/utils';
 import { type RouteResult } from '@/services/onemap';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useWeather } from '@/hooks/use-weather';
 
 interface RoutePanelProps {
   isVisible: boolean;
@@ -35,6 +36,7 @@ export function RoutePanel({
 }: RoutePanelProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [showInstructions, setShowInstructions] = useState(false);
+  const { temperature, uvIndex } = useWeather();
 
   if (!isVisible) return null;
 
@@ -97,12 +99,16 @@ export function RoutePanel({
               isSelected={selectedRoute === 'cool'}
               onSelect={() => onSelectRoute('cool')}
               destination={destination}
+              temperature={temperature}
+              uvIndex={uvIndex}
             />
             <RouteCard
               type="hot"
               isSelected={selectedRoute === 'hot'}
               onSelect={() => onSelectRoute('hot')}
               destination={destination}
+              temperature={temperature}
+              uvIndex={uvIndex}
             />
 
             {/* Turn-by-turn instructions preview */}
