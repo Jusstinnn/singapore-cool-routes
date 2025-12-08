@@ -2,15 +2,17 @@ import { useState } from 'react';
 import { SearchBar } from '@/components/SearchBar';
 import { WeatherWidget } from '@/components/WeatherWidget';
 import { RoutePanel } from '@/components/RoutePanel';
-import LeafletMap from '@/components/LeafletMap';
+import LeafletMap, { type Destination } from '@/components/LeafletMap';
 
 const Index = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [showRoutes, setShowRoutes] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState<'hot' | 'cool' | null>(null);
+  const [destination, setDestination] = useState<Destination | null>(null);
 
-  const handleSearch = () => {
+  const handleSearch = (dest: Destination) => {
     setIsSearching(true);
+    setDestination(dest);
     setTimeout(() => {
       setIsSearching(false);
       setShowRoutes(true);
@@ -26,7 +28,11 @@ const Index = () => {
   return (
     <div className="fixed inset-0 w-full h-full overflow-hidden bg-background">
       {/* Full screen OpenStreetMap via Leaflet */}
-      <LeafletMap showRoutes={showRoutes} selectedRoute={selectedRoute} />
+      <LeafletMap 
+        showRoutes={showRoutes} 
+        selectedRoute={selectedRoute} 
+        destination={destination}
+      />
       
       {/* UI Overlays */}
       {!showRoutes && <SearchBar onSearch={handleSearch} isSearching={isSearching} />}
