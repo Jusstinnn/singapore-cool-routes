@@ -5,16 +5,32 @@ interface RouteCardProps {
   type: 'hot' | 'cool';
   isSelected: boolean;
   onSelect: () => void;
+  destination?: string;
 }
 
-const routeData = {
+const routeDescriptions: Record<string, { hot: string; cool: string }> = {
+  'Waterway Point': {
+    hot: 'Direct route via Punggol Walk',
+    cool: 'Via Waterway Terraces covered walkway & Oasis Terraces',
+  },
+  'Coney Island': {
+    hot: 'Direct route via Punggol Promenade',
+    cool: 'Via Punggol Waterway Park shelters & covered bridges',
+  },
+  'SAFRA Punggol': {
+    hot: 'Direct route via Punggol Central',
+    cool: 'Via Waterway Point mall & HDB void decks',
+  },
+};
+
+const getRouteData = (destination?: string) => ({
   hot: {
     emoji: '🔥',
     label: 'Hot & Fast',
     time: '12 mins',
     temp: '32°C Exposure',
     shelter: '0% Sheltered',
-    description: 'Fastest route via open roads',
+    description: routeDescriptions[destination || '']?.hot || 'Fastest route via open roads',
   },
   cool: {
     emoji: '❄️',
@@ -22,12 +38,12 @@ const routeData = {
     time: '15 mins',
     temp: '26°C Comfort',
     shelter: '90% Sheltered',
-    description: 'Via Dhoby Ghaut Station & covered walkways',
+    description: routeDescriptions[destination || '']?.cool || 'Via covered walkways & sheltered paths',
   },
-};
+});
 
-export function RouteCard({ type, isSelected, onSelect }: RouteCardProps) {
-  const data = routeData[type];
+export function RouteCard({ type, isSelected, onSelect, destination }: RouteCardProps) {
+  const data = getRouteData(destination)[type];
   const isCool = type === 'cool';
 
   return (

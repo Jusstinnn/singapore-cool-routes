@@ -96,11 +96,13 @@ export function RoutePanel({
               type="cool"
               isSelected={selectedRoute === 'cool'}
               onSelect={() => onSelectRoute('cool')}
+              destination={destination}
             />
             <RouteCard
               type="hot"
               isSelected={selectedRoute === 'hot'}
               onSelect={() => onSelectRoute('hot')}
+              destination={destination}
             />
 
             {/* Turn-by-turn instructions preview */}
