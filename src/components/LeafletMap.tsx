@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
+import { Compass } from './Compass';
 
 // Singapore Institute of Technology (Punggol Campus)
 const SIT_PUNGGOL: L.LatLngExpression = [1.3784, 103.9097];
@@ -198,9 +199,12 @@ export default function LeafletMap({
   }, [isNavigating, navigationStep, currentRouteCoords]);
 
   return (
-    <div 
-      ref={containerRef} 
-      style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0 }}
-    />
+    <>
+      <div 
+        ref={containerRef} 
+        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0 }}
+      />
+      <Compass />
+    </>
   );
 }
