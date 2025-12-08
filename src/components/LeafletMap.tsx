@@ -11,108 +11,36 @@ const SAFRA_PUNGGOL: L.LatLngExpression = [1.3936, 103.9104];
 
 export type Destination = 'waterway' | 'coney' | 'safra';
 
-// Routes from SIT to each destination
-// Each route has a "hot" (direct/exposed) and "cool" (sheltered) version
+// Location coordinates for API calls
+export const LOCATIONS = {
+  sit: { lat: 1.3784, lng: 103.9097, name: 'Singapore Institute of Technology' },
+  waterway: { lat: 1.4066, lng: 103.9022, name: 'Waterway Point' },
+  coney: { lat: 1.4094, lng: 103.9216, name: 'Coney Island' },
+  safra: { lat: 1.3936, lng: 103.9104, name: 'SAFRA Punggol' },
+};
 
-// ========== WATERWAY POINT ROUTES ==========
-const WATERWAY_HOT_ROUTE: L.LatLngExpression[] = [
-  [1.3784, 103.9097],  // SIT Campus Heart
-  [1.3810, 103.9095],  // Walk north along road
-  [1.3850, 103.9090],  // Continue on pavement
-  [1.3890, 103.9070],  // Exposed walkway
-  [1.3930, 103.9050],  // Along Punggol Way
-  [1.3980, 103.9035],  // Continue exposed
-  [1.4020, 103.9025],  // Near waterway
-  [1.4066, 103.9022],  // Waterway Point
-];
-
-const WATERWAY_COOL_ROUTE: L.LatLngExpression[] = [
-  [1.3784, 103.9097],  // SIT Campus Heart
-  [1.3790, 103.9100],  // Through campus covered walkway
-  [1.3800, 103.9110],  // Underground connection
-  [1.3820, 103.9115],  // Sheltered link
-  [1.3860, 103.9105],  // Through covered HDB void deck
-  [1.3900, 103.9095],  // MRT station (Punggol)
-  [1.3950, 103.9080],  // Underground to mall
-  [1.4000, 103.9050],  // Covered walkway
-  [1.4030, 103.9035],  // Mall basement
-  [1.4066, 103.9022],  // Waterway Point
-];
-
-// ========== CONEY ISLAND ROUTES ==========
-const CONEY_HOT_ROUTE: L.LatLngExpression[] = [
-  [1.3784, 103.9097],  // SIT Campus Heart
-  [1.3810, 103.9120],  // Walk east
-  [1.3840, 103.9150],  // Along main road
-  [1.3870, 103.9170],  // Continue exposed
-  [1.3910, 103.9185],  // Near canal
-  [1.3960, 103.9195],  // Punggol Promenade
-  [1.4010, 103.9205],  // Along beach
-  [1.4050, 103.9210],  // Near entrance
-  [1.4094, 103.9216],  // Coney Island
-];
-
-const CONEY_COOL_ROUTE: L.LatLngExpression[] = [
-  [1.3784, 103.9097],  // SIT Campus Heart
-  [1.3795, 103.9105],  // Campus covered area
-  [1.3810, 103.9115],  // Through building
-  [1.3835, 103.9130],  // Covered linkway
-  [1.3860, 103.9145],  // HDB void decks
-  [1.3890, 103.9160],  // Sheltered path
-  [1.3930, 103.9175],  // Park connector (partial shade)
-  [1.3970, 103.9190],  // Tree-lined path
-  [1.4020, 103.9200],  // Shaded promenade
-  [1.4060, 103.9210],  // Under trees
-  [1.4094, 103.9216],  // Coney Island
-];
-
-// ========== SAFRA PUNGGOL ROUTES ==========
-const SAFRA_HOT_ROUTE: L.LatLngExpression[] = [
-  [1.3784, 103.9097],  // SIT Campus Heart
-  [1.3810, 103.9098],  // Walk north
-  [1.3840, 103.9100],  // Along road
-  [1.3870, 103.9102],  // Exposed pavement
-  [1.3900, 103.9103],  // Continue straight
-  [1.3936, 103.9104],  // SAFRA Punggol
-];
-
-const SAFRA_COOL_ROUTE: L.LatLngExpression[] = [
-  [1.3784, 103.9097],  // SIT Campus Heart
-  [1.3790, 103.9102],  // Through campus
-  [1.3805, 103.9108],  // Covered walkway
-  [1.3825, 103.9112],  // HDB void deck route
-  [1.3850, 103.9115],  // Sheltered link
-  [1.3875, 103.9118],  // Through mall area
-  [1.3900, 103.9115],  // Covered path
-  [1.3920, 103.9110],  // Near destination
-  [1.3936, 103.9104],  // SAFRA Punggol
-];
-
-const ROUTES = {
-  waterway: {
-    hot: WATERWAY_HOT_ROUTE,
-    cool: WATERWAY_COOL_ROUTE,
-    center: WATERWAY_POINT,
-  },
-  coney: {
-    hot: CONEY_HOT_ROUTE,
-    cool: CONEY_COOL_ROUTE,
-    center: CONEY_ISLAND,
-  },
-  safra: {
-    hot: SAFRA_HOT_ROUTE,
-    cool: SAFRA_COOL_ROUTE,
-    center: SAFRA_PUNGGOL,
-  },
+// Map destination to end point
+const DESTINATION_COORDS = {
+  waterway: WATERWAY_POINT,
+  coney: CONEY_ISLAND,
+  safra: SAFRA_PUNGGOL,
 };
 
 interface LeafletMapProps {
   showRoutes: boolean;
   selectedRoute: 'hot' | 'cool' | null;
   destination: Destination | null;
+  hotRouteCoords?: [number, number][];
+  coolRouteCoords?: [number, number][];
 }
 
-export default function LeafletMap({ showRoutes, selectedRoute, destination }: LeafletMapProps) {
+export default function LeafletMap({ 
+  showRoutes, 
+  selectedRoute, 
+  destination,
+  hotRouteCoords,
+  coolRouteCoords
+}: LeafletMapProps) {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const routeLayersRef = useRef<L.LayerGroup | null>(null);
@@ -149,50 +77,64 @@ export default function LeafletMap({ showRoutes, selectedRoute, destination }: L
     routeLayersRef.current.clearLayers();
 
     if (showRoutes && destination) {
-      const currentRoutes = ROUTES[destination];
-      const hotRoute = currentRoutes.hot;
-      const coolRoute = currentRoutes.cool;
-      const endPoint = currentRoutes.center;
+      const endPoint = DESTINATION_COORDS[destination];
 
-      // Create bounds that include all route points
-      const allPoints = [...hotRoute, ...coolRoute];
-      const bounds = L.latLngBounds(allPoints);
-      
-      // Smoothly animate to show the full route
-      mapRef.current.fitBounds(bounds.pad(0.3), { 
-        animate: true,
-        duration: 0.8,
-        easeLinearity: 0.25,
-        maxZoom: 16
-      });
+      // Use API routes if available, otherwise show markers only
+      const hasRoutes = hotRouteCoords && hotRouteCoords.length > 0 && coolRouteCoords && coolRouteCoords.length > 0;
 
-      // Hot route - red dashed
-      L.polyline(hotRoute, {
-        color: '#ef4444',
-        weight: selectedRoute === 'hot' ? 6 : 4,
-        opacity: selectedRoute === 'cool' ? 0.4 : 0.9,
-        dashArray: '10, 10',
-        lineCap: 'round',
-        lineJoin: 'round',
-      }).addTo(routeLayersRef.current);
+      if (hasRoutes) {
+        // Create bounds that include all route points
+        const allPoints = [
+          ...hotRouteCoords.map(c => L.latLng(c[0], c[1])),
+          ...coolRouteCoords.map(c => L.latLng(c[0], c[1]))
+        ];
+        const bounds = L.latLngBounds(allPoints);
+        
+        // Smoothly animate to show the full route
+        mapRef.current.fitBounds(bounds.pad(0.2), { 
+          animate: true,
+          duration: 0.8,
+          easeLinearity: 0.25,
+          maxZoom: 15
+        });
 
-      // Cool route glow
-      L.polyline(coolRoute, {
-        color: '#0ea5e9',
-        weight: selectedRoute === 'cool' ? 10 : 6,
-        opacity: 0.3,
-        lineCap: 'round',
-        lineJoin: 'round',
-      }).addTo(routeLayersRef.current);
+        // Hot route (driving route) - red dashed
+        const hotLatLngs: L.LatLngExpression[] = hotRouteCoords.map(c => [c[0], c[1]] as L.LatLngExpression);
+        L.polyline(hotLatLngs, {
+          color: '#ef4444',
+          weight: selectedRoute === 'hot' ? 6 : 4,
+          opacity: selectedRoute === 'cool' ? 0.4 : 0.9,
+          dashArray: '10, 10',
+          lineCap: 'round',
+          lineJoin: 'round',
+        }).addTo(routeLayersRef.current);
 
-      // Cool route main
-      L.polyline(coolRoute, {
-        color: '#06b6d4',
-        weight: selectedRoute === 'cool' ? 6 : 4,
-        opacity: selectedRoute === 'hot' ? 0.4 : 1,
-        lineCap: 'round',
-        lineJoin: 'round',
-      }).addTo(routeLayersRef.current);
+        // Cool route (walking route) glow
+        const coolLatLngs: L.LatLngExpression[] = coolRouteCoords.map(c => [c[0], c[1]] as L.LatLngExpression);
+        L.polyline(coolLatLngs, {
+          color: '#0ea5e9',
+          weight: selectedRoute === 'cool' ? 10 : 6,
+          opacity: 0.3,
+          lineCap: 'round',
+          lineJoin: 'round',
+        }).addTo(routeLayersRef.current);
+
+        // Cool route main
+        L.polyline(coolLatLngs, {
+          color: '#06b6d4',
+          weight: selectedRoute === 'cool' ? 6 : 4,
+          opacity: selectedRoute === 'hot' ? 0.4 : 1,
+          lineCap: 'round',
+          lineJoin: 'round',
+        }).addTo(routeLayersRef.current);
+      } else {
+        // Fallback: just zoom to show start and end points
+        const bounds = L.latLngBounds([SIT_PUNGGOL, endPoint]);
+        mapRef.current.fitBounds(bounds.pad(0.3), { 
+          animate: true,
+          duration: 0.8,
+        });
+      }
 
       // Start marker (SIT)
       L.marker(SIT_PUNGGOL, {
@@ -214,7 +156,7 @@ export default function LeafletMap({ showRoutes, selectedRoute, destination }: L
         }),
       }).addTo(routeLayersRef.current);
     }
-  }, [showRoutes, selectedRoute, destination]);
+  }, [showRoutes, selectedRoute, destination, hotRouteCoords, coolRouteCoords]);
 
   return (
     <div 
