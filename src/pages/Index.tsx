@@ -14,6 +14,7 @@ const Index = () => {
   const [hotRouteCoords, setHotRouteCoords] = useState<[number, number][]>([]);
   const [coolRouteCoords, setCoolRouteCoords] = useState<[number, number][]>([]);
   const [routeInfo, setRouteInfo] = useState<{ hot: RouteResult | null; cool: RouteResult | null }>({ hot: null, cool: null });
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const handleSearch = async (dest: Destination) => {
     setIsSearching(true);
@@ -66,6 +67,15 @@ const Index = () => {
     setHotRouteCoords([]);
     setCoolRouteCoords([]);
     setRouteInfo({ hot: null, cool: null });
+    setIsNavigating(false);
+  };
+
+  const handleStartNavigation = () => {
+    setIsNavigating(true);
+  };
+
+  const handleStopNavigation = () => {
+    setIsNavigating(false);
   };
 
   return (
@@ -77,6 +87,7 @@ const Index = () => {
         destination={destination}
         hotRouteCoords={hotRouteCoords}
         coolRouteCoords={coolRouteCoords}
+        isNavigating={isNavigating}
       />
       
       {/* UI Overlays */}
@@ -91,6 +102,9 @@ const Index = () => {
         onSelectRoute={setSelectedRoute}
         routeInfo={routeInfo}
         destination={destination ? LOCATIONS[destination].name : undefined}
+        isNavigating={isNavigating}
+        onStartNavigation={handleStartNavigation}
+        onStopNavigation={handleStopNavigation}
       />
 
       {/* Attribution */}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Navigation, MapPin, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { RouteCard } from '@/components/RouteCard';
+import { NavigationView } from '@/components/NavigationView';
 import { cn } from '@/lib/utils';
 import { type RouteResult } from '@/services/onemap';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -12,9 +13,22 @@ interface RoutePanelProps {
   onSelectRoute: (route: 'hot' | 'cool') => void;
   routeInfo?: { hot: RouteResult | null; cool: RouteResult | null };
   destination?: string;
+  isNavigating?: boolean;
+  onStartNavigation?: () => void;
+  onStopNavigation?: () => void;
 }
 
-export function RoutePanel({ isVisible, onClose, selectedRoute, onSelectRoute, routeInfo, destination }: RoutePanelProps) {
+export function RoutePanel({ 
+  isVisible, 
+  onClose, 
+  selectedRoute, 
+  onSelectRoute, 
+  routeInfo, 
+  destination,
+  isNavigating,
+  onStartNavigation,
+  onStopNavigation
+}: RoutePanelProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [showInstructions, setShowInstructions] = useState(false);
 
@@ -22,6 +36,17 @@ export function RoutePanel({ isVisible, onClose, selectedRoute, onSelectRoute, r
 
   const currentRouteInfo = selectedRoute === 'hot' ? routeInfo?.hot : routeInfo?.cool;
   const instructions = currentRouteInfo?.instructions?.filter(i => i && i.trim()) || [];
+
+  // Show navigation view when navigating
+  if (isNavigating && selectedRoute) {
+    return (
+      <NavigationView 
+        routeInfo={currentRouteInfo || null}
+        onStop={onStopNavigation || onClose}
+        routeType={selectedRoute}
+      />
+    );
+  }
 
   return (
     <div className="absolute bottom-0 left-0 right-0 z-[1000]">
@@ -72,7 +97,7 @@ export function RoutePanel({ isVisible, onClose, selectedRoute, onSelectRoute, r
               onSelect={() => onSelectRoute('hot')}
             />
 
-            {/* Turn-by-turn instructions */}
+            {/* Turn-by-turn instructions preview */}
             {selectedRoute && instructions.length > 0 && (
               <div className="mt-3 border border-border/50 rounded-xl overflow-hidden">
                 <button
@@ -80,7 +105,7 @@ export function RoutePanel({ isVisible, onClose, selectedRoute, onSelectRoute, r
                   className="w-full px-4 py-3 flex items-center justify-between bg-secondary/50 hover:bg-secondary/70 transition-colors"
                 >
                   <span className="text-sm font-medium text-foreground">
-                    Directions ({instructions.length} steps)
+                    Preview Directions ({instructions.length} steps)
                   </span>
                   {showInstructions ? (
                     <ChevronUp className="h-4 w-4 text-muted-foreground" />
@@ -108,6 +133,7 @@ export function RoutePanel({ isVisible, onClose, selectedRoute, onSelectRoute, r
             {/* Start navigation button */}
             {selectedRoute && (
               <button
+                onClick={onStartNavigation}
                 className={cn(
                   "w-full rounded-xl py-4 font-medium mt-4",
                   "flex items-center justify-center gap-2",

@@ -32,6 +32,7 @@ interface LeafletMapProps {
   destination: Destination | null;
   hotRouteCoords?: [number, number][];
   coolRouteCoords?: [number, number][];
+  isNavigating?: boolean;
 }
 
 export default function LeafletMap({ 
@@ -39,7 +40,8 @@ export default function LeafletMap({
   selectedRoute, 
   destination,
   hotRouteCoords,
-  coolRouteCoords
+  coolRouteCoords,
+  isNavigating
 }: LeafletMapProps) {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -164,6 +166,18 @@ export default function LeafletMap({
       }).addTo(routeLayersRef.current);
     }
   }, [showRoutes, selectedRoute, destination, hotRouteCoords, coolRouteCoords]);
+
+  // Handle navigation mode - zoom to user location (SIT for now)
+  useEffect(() => {
+    if (!mapRef.current) return;
+    
+    if (isNavigating) {
+      mapRef.current.flyTo(SIT_PUNGGOL, 18, {
+        animate: true,
+        duration: 1.2,
+      });
+    }
+  }, [isNavigating]);
 
   return (
     <div 
