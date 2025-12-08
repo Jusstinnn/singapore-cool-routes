@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { SearchBar } from '@/components/SearchBar';
 import { WeatherWidget } from '@/components/WeatherWidget';
 import { RoutePanel } from '@/components/RoutePanel';
-import { MapView } from '@/components/MapView';
+import LeafletMap from '@/components/LeafletMap';
 
 const Index = () => {
   const [isSearching, setIsSearching] = useState(false);
@@ -25,8 +25,8 @@ const Index = () => {
 
   return (
     <div className="fixed inset-0 w-full h-full overflow-hidden bg-background">
-      {/* Full screen map */}
-      <MapView showRoutes={showRoutes} selectedRoute={selectedRoute} />
+      {/* Full screen OpenStreetMap via Leaflet */}
+      <LeafletMap showRoutes={showRoutes} selectedRoute={selectedRoute} />
       
       {/* UI Overlays */}
       {!showRoutes && <SearchBar onSearch={handleSearch} isSearching={isSearching} />}
