@@ -3,7 +3,7 @@ import { SearchBar } from '@/components/SearchBar';
 import { WeatherWidget } from '@/components/WeatherWidget';
 import { RoutePanel } from '@/components/RoutePanel';
 import LeafletMap, { type Destination, LOCATIONS } from '@/components/LeafletMap';
-import { getWalkingRoute, getDrivingRoute, type RouteResult } from '@/services/onemap';
+import { getWalkingRoute, getDrivingRoute, getFallbackRoutes, type RouteResult } from '@/services/onemap';
 import { toast } from 'sonner';
 
 const Index = () => {
@@ -29,23 +29,32 @@ const Index = () => {
         getDrivingRoute(start.lat, start.lng, end.lat, end.lng),
       ]);
 
-      if (walkRoute) {
+      if (walkRoute && driveRoute) {
         setCoolRouteCoords(walkRoute.coordinates);
-        toast.success(`Walking route found: ${(walkRoute.totalDistance / 1000).toFixed(1)}km, ~${Math.ceil(walkRoute.totalTime / 60)} min`);
-      } else {
-        toast.error('Could not fetch walking route from OneMap');
-      }
-
-      if (driveRoute) {
         setHotRouteCoords(driveRoute.coordinates);
+        setRouteInfo({ hot: driveRoute, cool: walkRoute });
+        toast.success(`Routes found: ${(walkRoute.totalDistance / 1000).toFixed(1)}km walk`);
+      } else {
+        // Use fallback hardcoded routes when API fails
+        const fallback = getFallbackRoutes(dest);
+        setCoolRouteCoords(fallback.cool);
+        setHotRouteCoords(fallback.hot);
+        setRouteInfo({ hot: null, cool: null });
+        toast.info('Using demo routes (API token may have expired)');
       }
 
-      setRouteInfo({ hot: driveRoute, cool: walkRoute });
       setShowRoutes(true);
       setSelectedRoute('cool');
     } catch (error) {
       console.error('Error fetching routes:', error);
-      toast.error('Failed to fetch routes. The API token may have expired.');
+      // Use fallback routes on error
+      const fallback = getFallbackRoutes(dest);
+      setCoolRouteCoords(fallback.cool);
+      setHotRouteCoords(fallback.hot);
+      setRouteInfo({ hot: null, cool: null });
+      setShowRoutes(true);
+      setSelectedRoute('cool');
+      toast.info('Using demo routes (API unavailable)');
     } finally {
       setIsSearching(false);
     }
