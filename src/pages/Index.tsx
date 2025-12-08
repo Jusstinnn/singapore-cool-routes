@@ -89,6 +89,8 @@ const Index = () => {
         onClose={handleClosePanel}
         selectedRoute={selectedRoute}
         onSelectRoute={setSelectedRoute}
+        routeInfo={routeInfo}
+        destination={destination ? LOCATIONS[destination].name : undefined}
       />
 
       {/* Attribution */}
