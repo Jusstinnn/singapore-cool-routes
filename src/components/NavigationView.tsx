@@ -7,6 +7,8 @@ interface NavigationViewProps {
   routeInfo: RouteResult | null;
   onStop: () => void;
   routeType: 'hot' | 'cool';
+  onStepChange?: (step: number) => void;
+  routeCoords?: [number, number][];
 }
 
 // Simulated distance remaining for each step (since OneMap doesn't always provide this)
@@ -15,13 +17,20 @@ function getStepDistance(index: number, totalSteps: number, totalDistance: numbe
   return Math.round(remaining);
 }
 
-export function NavigationView({ routeInfo, onStop, routeType }: NavigationViewProps) {
+export function NavigationView({ routeInfo, onStop, routeType, onStepChange, routeCoords }: NavigationViewProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   
   const instructions = routeInfo?.instructions?.filter(i => i && i.trim()) || [];
   const totalDistance = routeInfo?.totalDistance || 0;
   const totalSteps = instructions.length;
+
+  // Notify parent when step changes
+  useEffect(() => {
+    if (onStepChange) {
+      onStepChange(currentStep);
+    }
+  }, [currentStep, onStepChange]);
 
   // Simulated auto-advance (in real app, this would be based on GPS)
   useEffect(() => {
