@@ -199,12 +199,12 @@ export default function LeafletMap({
   }, [isNavigating, navigationStep, currentRouteCoords]);
 
   return (
-    <>
+    <div className="absolute inset-0">
       <div 
         ref={containerRef} 
-        style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0 }}
+        className="absolute inset-0 z-0"
       />
       <Compass />
-    </>
+    </div>
   );
 }
