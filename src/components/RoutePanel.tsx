@@ -133,7 +133,10 @@ export function RoutePanel({
             {/* Start navigation button */}
             {selectedRoute && (
               <button
-                onClick={onStartNavigation}
+                onClick={() => {
+                  console.log('Start navigation clicked, handler:', !!onStartNavigation);
+                  if (onStartNavigation) onStartNavigation();
+                }}
                 className={cn(
                   "w-full rounded-xl py-4 font-medium mt-4",
                   "flex items-center justify-center gap-2",
