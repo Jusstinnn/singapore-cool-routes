@@ -1,11 +1,14 @@
-import { Clock, Thermometer, Umbrella, Check } from 'lucide-react';
+import { Clock, Thermometer, Umbrella, Check, Gauge } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { calculateComfortScore } from '@/hooks/use-weather';
 
 interface RouteCardProps {
   type: 'hot' | 'cool';
   isSelected: boolean;
   onSelect: () => void;
   destination?: string;
+  temperature?: number | null;
+  uvIndex?: number | null;
 }
 
 const routeDescriptions: Record<string, { hot: string; cool: string }> = {
@@ -23,28 +26,44 @@ const routeDescriptions: Record<string, { hot: string; cool: string }> = {
   },
 };
 
-const getRouteData = (destination?: string) => ({
-  hot: {
-    emoji: '🔥',
-    label: 'Hot & Fast',
-    time: '12 mins',
-    temp: '32°C Exposure',
-    shelter: '0% Sheltered',
-    description: routeDescriptions[destination || '']?.hot || 'Fastest route via open roads',
-  },
-  cool: {
-    emoji: '❄️',
-    label: 'ShadeWalk',
-    time: '15 mins',
-    temp: '26°C Comfort',
-    shelter: '90% Sheltered',
-    description: routeDescriptions[destination || '']?.cool || 'Via covered walkways & sheltered paths',
-  },
-});
+const getRouteData = (destination?: string, temperature?: number | null) => {
+  const realTemp = temperature ?? 30;
+  const hotExposureTemp = Math.round(realTemp + 2); // Direct sun adds ~2°C
+  const coolComfortTemp = Math.round(realTemp - 4); // Shade reduces ~4°C
+  
+  return {
+    hot: {
+      emoji: '🔥',
+      label: 'Hot & Fast',
+      time: '12 mins',
+      temp: `${hotExposureTemp}°C Exposure`,
+      shelter: '0% Sheltered',
+      description: routeDescriptions[destination || '']?.hot || 'Fastest route via open roads',
+    },
+    cool: {
+      emoji: '❄️',
+      label: 'ShadeWalk',
+      time: '15 mins',
+      temp: `${coolComfortTemp}°C Comfort`,
+      shelter: '90% Sheltered',
+      description: routeDescriptions[destination || '']?.cool || 'Via covered walkways & sheltered paths',
+    },
+  };
+};
 
-export function RouteCard({ type, isSelected, onSelect, destination }: RouteCardProps) {
-  const data = getRouteData(destination)[type];
+function getComfortLabel(score: number): { label: string; color: string } {
+  if (score >= 80) return { label: 'Excellent', color: 'text-green-500' };
+  if (score >= 60) return { label: 'Good', color: 'text-cool' };
+  if (score >= 40) return { label: 'Moderate', color: 'text-yellow-500' };
+  if (score >= 20) return { label: 'Poor', color: 'text-orange-500' };
+  return { label: 'Very Poor', color: 'text-destructive' };
+}
+
+export function RouteCard({ type, isSelected, onSelect, destination, temperature, uvIndex }: RouteCardProps) {
+  const data = getRouteData(destination, temperature)[type];
   const isCool = type === 'cool';
+  const comfortScore = calculateComfortScore(type, temperature, uvIndex);
+  const { label: comfortLabel, color: comfortColor } = getComfortLabel(comfortScore);
 
   return (
     <button
@@ -79,7 +98,7 @@ export function RouteCard({ type, isSelected, onSelect, destination }: RouteCard
           </div>
 
           {/* Stats grid */}
-          <div className="grid grid-cols-3 gap-2 mb-2">
+          <div className="grid grid-cols-2 gap-2 mb-2">
             <div className="flex items-center gap-1.5">
               <Clock className="h-3.5 w-3.5 text-muted-foreground" />
               <span className="text-sm font-medium text-foreground">{data.time}</span>
@@ -103,6 +122,12 @@ export function RouteCard({ type, isSelected, onSelect, destination }: RouteCard
                 "text-sm font-medium",
                 isCool ? "text-primary" : "text-muted-foreground"
               )}>{data.shelter}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Gauge className={cn("h-3.5 w-3.5", comfortColor)} />
+              <span className={cn("text-sm font-medium", comfortColor)}>
+                {comfortScore}/100 {comfortLabel}
+              </span>
             </div>
           </div>
 
