@@ -77,9 +77,17 @@ export default function LeafletMap({ showRoutes, selectedRoute }: LeafletMapProp
     routeLayersRef.current.clearLayers();
 
     if (showRoutes) {
-      // Fit bounds
-      const bounds = L.latLngBounds([DHOBY_GHAUT, PLAZA_SINGAPURA]);
-      mapRef.current.fitBounds(bounds.pad(0.5), { animate: true });
+      // Create bounds that include all route points
+      const allPoints = [...HOT_ROUTE, ...COOL_ROUTE];
+      const bounds = L.latLngBounds(allPoints);
+      
+      // Smoothly animate to show the full route
+      mapRef.current.fitBounds(bounds.pad(0.3), { 
+        animate: true,
+        duration: 0.8,
+        easeLinearity: 0.25,
+        maxZoom: 17
+      });
 
       // Hot route - red dashed
       L.polyline(HOT_ROUTE, {
