@@ -33,6 +33,8 @@ interface LeafletMapProps {
   hotRouteCoords?: [number, number][];
   coolRouteCoords?: [number, number][];
   isNavigating?: boolean;
+  navigationStep?: number;
+  currentRouteCoords?: [number, number][];
 }
 
 export default function LeafletMap({ 
@@ -41,7 +43,9 @@ export default function LeafletMap({
   destination,
   hotRouteCoords,
   coolRouteCoords,
-  isNavigating
+  isNavigating,
+  navigationStep = 0,
+  currentRouteCoords = []
 }: LeafletMapProps) {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -167,17 +171,31 @@ export default function LeafletMap({
     }
   }, [showRoutes, selectedRoute, destination, hotRouteCoords, coolRouteCoords]);
 
-  // Handle navigation mode - zoom to user location (SIT for now)
+  // Handle navigation mode - zoom to current step location
   useEffect(() => {
     if (!mapRef.current) return;
     
-    if (isNavigating) {
+    if (isNavigating && currentRouteCoords.length > 0) {
+      // Calculate position along route based on step
+      const totalSteps = Math.max(1, currentRouteCoords.length - 1);
+      const coordIndex = Math.min(
+        Math.floor((navigationStep / totalSteps) * currentRouteCoords.length),
+        currentRouteCoords.length - 1
+      );
+      const targetCoord = currentRouteCoords[coordIndex] || currentRouteCoords[0];
+      
+      mapRef.current.flyTo([targetCoord[0], targetCoord[1]], 18, {
+        animate: true,
+        duration: 0.8,
+      });
+    } else if (isNavigating) {
+      // Fallback to start location
       mapRef.current.flyTo(SIT_PUNGGOL, 18, {
         animate: true,
         duration: 1.2,
       });
     }
-  }, [isNavigating]);
+  }, [isNavigating, navigationStep, currentRouteCoords]);
 
   return (
     <div 

@@ -15,6 +15,7 @@ const Index = () => {
   const [coolRouteCoords, setCoolRouteCoords] = useState<[number, number][]>([]);
   const [routeInfo, setRouteInfo] = useState<{ hot: RouteResult | null; cool: RouteResult | null }>({ hot: null, cool: null });
   const [isNavigating, setIsNavigating] = useState(false);
+  const [navigationStep, setNavigationStep] = useState(0);
 
   const handleSearch = async (dest: Destination) => {
     setIsSearching(true);
@@ -72,11 +73,20 @@ const Index = () => {
 
   const handleStartNavigation = () => {
     setIsNavigating(true);
+    setNavigationStep(0);
   };
 
   const handleStopNavigation = () => {
     setIsNavigating(false);
+    setNavigationStep(0);
   };
+
+  const handleStepChange = (step: number) => {
+    setNavigationStep(step);
+  };
+
+  // Get the current route coordinates based on selection
+  const currentRouteCoords = selectedRoute === 'hot' ? hotRouteCoords : coolRouteCoords;
 
   return (
     <div className="fixed inset-0 w-full h-full overflow-hidden bg-background">
@@ -88,6 +98,8 @@ const Index = () => {
         hotRouteCoords={hotRouteCoords}
         coolRouteCoords={coolRouteCoords}
         isNavigating={isNavigating}
+        navigationStep={navigationStep}
+        currentRouteCoords={currentRouteCoords}
       />
       
       {/* UI Overlays */}
@@ -105,6 +117,8 @@ const Index = () => {
         isNavigating={isNavigating}
         onStartNavigation={handleStartNavigation}
         onStopNavigation={handleStopNavigation}
+        onStepChange={handleStepChange}
+        routeCoords={currentRouteCoords}
       />
 
       {/* Attribution */}

@@ -16,6 +16,8 @@ interface RoutePanelProps {
   isNavigating?: boolean;
   onStartNavigation?: () => void;
   onStopNavigation?: () => void;
+  onStepChange?: (step: number) => void;
+  routeCoords?: [number, number][];
 }
 
 export function RoutePanel({ 
@@ -27,7 +29,9 @@ export function RoutePanel({
   destination,
   isNavigating,
   onStartNavigation,
-  onStopNavigation
+  onStopNavigation,
+  onStepChange,
+  routeCoords
 }: RoutePanelProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   const [showInstructions, setShowInstructions] = useState(false);
@@ -44,6 +48,8 @@ export function RoutePanel({
         routeInfo={currentRouteInfo || null}
         onStop={onStopNavigation || onClose}
         routeType={selectedRoute}
+        onStepChange={onStepChange}
+        routeCoords={routeCoords}
       />
     );
   }
