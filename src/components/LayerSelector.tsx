@@ -28,7 +28,7 @@ export function LayerSelector({ currentStyle, onStyleChange }: LayerSelectorProp
       </button>
 
       {isOpen && (
-        <div className="absolute top-12 left-0 bg-background/95 backdrop-blur-sm rounded-lg shadow-lg border border-border overflow-hidden min-w-[120px]">
+        <div className="absolute top-12 left-0 z-[1100] bg-background backdrop-blur-sm rounded-lg shadow-lg border border-border overflow-hidden min-w-[120px]">
           {styles.map((style) => (
             <button
               key={style.id}
