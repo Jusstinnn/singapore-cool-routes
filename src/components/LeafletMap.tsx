@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { Compass } from './Compass';
 import { LayerSelector, MapStyle } from './LayerSelector';
+import { WindToggle } from './WindToggle';
+import { WindOverlay } from './WindOverlay';
 
 // Map tile URLs for different styles
 const MAP_TILES: Record<MapStyle, { url: string; attribution: string }> = {
@@ -73,6 +75,7 @@ export default function LeafletMap({
   const userMarkerRef = useRef<L.Marker | null>(null);
 
   const [mapStyle, setMapStyle] = useState<MapStyle>('classic');
+  const [showWindOverlay, setShowWindOverlay] = useState(false);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
 
   // Initialize map
@@ -282,8 +285,10 @@ export default function LeafletMap({
         ref={containerRef} 
         className="absolute inset-0 z-0"
       />
+      {showWindOverlay && <WindOverlay />}
       <Compass />
       <LayerSelector currentStyle={mapStyle} onStyleChange={setMapStyle} />
+      <WindToggle isActive={showWindOverlay} onToggle={() => setShowWindOverlay(!showWindOverlay)} />
     </div>
   );
 }
