@@ -16,9 +16,8 @@ const MAP_TILES: Record<MapStyle, { url: string; attribution: string }> = {
     attribution: '© OpenStreetMap',
   },
   '3d': {
-    // OneMap Singapore satellite imagery - more accurate for Singapore
-    url: 'https://www.onemap.gov.sg/maps/tiles/IMAGERY/{z}/{x}/{y}.png',
-    attribution: '© OneMap Singapore',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution: '© Esri',
   },
 };
 
