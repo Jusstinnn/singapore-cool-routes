@@ -1,4 +1,4 @@
-import { Sun, AlertTriangle, Loader2, Shield, Umbrella, CloudRain, Cloud, Droplets } from 'lucide-react';
+import { Sun, AlertTriangle, Loader2, Shield, Umbrella, Cloud, Droplets } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface WeatherData {
@@ -179,11 +179,9 @@ export function WeatherWidget() {
       <div className="bg-card/95 backdrop-blur-xl rounded-xl shadow-lg border border-border/50 p-3 space-y-2">
         {/* Temperature Row */}
         <div className="flex items-center gap-2">
-          <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${rainData?.isRaining ? 'bg-blue-500/10' : isHot ? 'bg-hot/10' : 'bg-primary/10'}`}>
+          <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${isHot ? 'bg-hot/10' : 'bg-primary/10'}`}>
             {isLoading ? (
               <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />
-            ) : rainData?.isRaining ? (
-              <CloudRain className="h-5 w-5 text-blue-500" />
             ) : (
               <Sun className={`h-5 w-5 ${isHot ? 'text-hot' : 'text-primary'}`} />
             )}
@@ -196,9 +194,6 @@ export function WeatherWidget() {
               <span className="text-xs text-muted-foreground">
                 (Feels {feelsLike}°C)
               </span>
-              {rainData?.isRaining && (
-                <span className="text-xs text-blue-500 font-medium">• Raining</span>
-              )}
             </div>
           </div>
         </div>
