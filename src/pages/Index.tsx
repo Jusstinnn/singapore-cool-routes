@@ -16,6 +16,7 @@ const Index = () => {
   const [routeInfo, setRouteInfo] = useState<{ hot: RouteResult | null; cool: RouteResult | null }>({ hot: null, cool: null });
   const [isNavigating, setIsNavigating] = useState(false);
   const [navigationStep, setNavigationStep] = useState(0);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
 
   const handleSearch = async (dest: Destination) => {
     setIsSearching(true);
@@ -100,10 +101,11 @@ const Index = () => {
         isNavigating={isNavigating}
         navigationStep={navigationStep}
         currentRouteCoords={currentRouteCoords}
+        userLocation={userLocation}
       />
       
       {/* UI Overlays */}
-      {!showRoutes && <SearchBar onSearch={handleSearch} isSearching={isSearching} />}
+      {!showRoutes && <SearchBar onSearch={handleSearch} isSearching={isSearching} onLocationChange={setUserLocation} />}
       
       <WeatherWidget />
       
