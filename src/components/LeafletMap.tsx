@@ -14,7 +14,7 @@ const MAP_TILES: Record<MapStyle, { url: string; attribution: string }> = {
     attribution: '© OpenStreetMap',
   },
   '3d': {
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/{z}/{y}/{x}',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     attribution: '© Esri',
   },
 };
