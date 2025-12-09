@@ -21,22 +21,22 @@ const MAP_TILES: Record<MapStyle, { url: string; attribution: string }> = {
   },
 };
 
-// Singapore Institute of Technology (Punggol Campus)
-const SIT_PUNGGOL: L.LatLngExpression = [1.3784, 103.9097];
+// Singapore Institute of Technology (Punggol Campus) - Accurate coordinates
+const SIT_PUNGGOL: L.LatLngExpression = [1.41417, 103.91222];
 
-// Destinations
-const WATERWAY_POINT: L.LatLngExpression = [1.4066, 103.9022];
-const CONEY_ISLAND: L.LatLngExpression = [1.4094, 103.9216];
-const SAFRA_PUNGGOL: L.LatLngExpression = [1.3936, 103.9104];
+// Destinations - Verified coordinates
+const WATERWAY_POINT: L.LatLngExpression = [1.4067, 103.9020];
+const CONEY_ISLAND: L.LatLngExpression = [1.4094, 103.9240];
+const SAFRA_PUNGGOL: L.LatLngExpression = [1.3966, 103.9073];
 
 export type Destination = 'waterway' | 'coney' | 'safra';
 
 // Location coordinates for API calls
 export const LOCATIONS = {
-  sit: { lat: 1.3784, lng: 103.9097, name: 'Singapore Institute of Technology' },
-  waterway: { lat: 1.4066, lng: 103.9022, name: 'Waterway Point' },
-  coney: { lat: 1.4094, lng: 103.9216, name: 'Coney Island' },
-  safra: { lat: 1.3936, lng: 103.9104, name: 'SAFRA Punggol' },
+  sit: { lat: 1.41417, lng: 103.91222, name: 'Singapore Institute of Technology' },
+  waterway: { lat: 1.4067, lng: 103.9020, name: 'Waterway Point' },
+  coney: { lat: 1.4094, lng: 103.9240, name: 'Coney Island' },
+  safra: { lat: 1.3966, lng: 103.9073, name: 'SAFRA Punggol' },
 };
 
 // Map destination to end point
