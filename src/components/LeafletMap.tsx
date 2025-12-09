@@ -240,13 +240,13 @@ export default function LeafletMap({
   useEffect(() => {
     if (!mapRef.current) return;
 
-    // Remove existing user marker
+    // Always remove existing user marker first
     if (userMarkerRef.current) {
-      mapRef.current.removeLayer(userMarkerRef.current);
+      userMarkerRef.current.remove();
       userMarkerRef.current = null;
     }
 
-    if (userLocation) {
+    if (userLocation && userLocation.lat && userLocation.lng) {
       // Create pulsing blue dot for user location
       userMarkerRef.current = L.marker([userLocation.lat, userLocation.lng], {
         icon: L.divIcon({
@@ -267,8 +267,14 @@ export default function LeafletMap({
         animate: true,
         duration: 1.2,
       });
+    } else if (!showRoutes) {
+      // Fly back to SIT when user location is cleared
+      mapRef.current.flyTo(SIT_PUNGGOL, 15, {
+        animate: true,
+        duration: 1,
+      });
     }
-  }, [userLocation]);
+  }, [userLocation, showRoutes]);
 
   return (
     <div className="absolute inset-0">
