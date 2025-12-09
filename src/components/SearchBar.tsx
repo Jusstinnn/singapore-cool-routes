@@ -6,6 +6,7 @@ import type { Destination } from './LeafletMap';
 interface SearchBarProps {
   onSearch: (destination: Destination) => void;
   isSearching: boolean;
+  onLocationChange?: (location: { lat: number; lng: number } | null) => void;
 }
 
 const DESTINATIONS = [
@@ -14,7 +15,7 @@ const DESTINATIONS = [
   { value: 'safra' as Destination, label: 'SAFRA Punggol' },
 ];
 
-export function SearchBar({ onSearch, isSearching }: SearchBarProps) {
+export function SearchBar({ onSearch, isSearching, onLocationChange }: SearchBarProps) {
   const [selectedDestination, setSelectedDestination] = useState<Destination | ''>('');
   const [isOriginOpen, setIsOriginOpen] = useState(false);
   const [isDestOpen, setIsDestOpen] = useState(false);
@@ -34,13 +35,15 @@ export function SearchBar({ onSearch, isSearching }: SearchBarProps) {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setCurrentLocation({
+        const location = {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
-        });
+        };
+        setCurrentLocation(location);
         setOriginMode('current');
         setIsLocating(false);
         setIsOriginOpen(false);
+        onLocationChange?.(location);
       },
       (error) => {
         setIsLocating(false);

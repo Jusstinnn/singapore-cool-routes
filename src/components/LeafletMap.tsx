@@ -53,6 +53,7 @@ interface LeafletMapProps {
   isNavigating?: boolean;
   navigationStep?: number;
   currentRouteCoords?: [number, number][];
+  userLocation?: { lat: number; lng: number } | null;
 }
 
 export default function LeafletMap({ 
@@ -63,11 +64,13 @@ export default function LeafletMap({
   coolRouteCoords,
   isNavigating,
   navigationStep = 0,
-  currentRouteCoords = []
+  currentRouteCoords = [],
+  userLocation
 }: LeafletMapProps) {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const routeLayersRef = useRef<L.LayerGroup | null>(null);
+  const userMarkerRef = useRef<L.Marker | null>(null);
 
   const [mapStyle, setMapStyle] = useState<MapStyle>('classic');
   const tileLayerRef = useRef<L.TileLayer | null>(null);
@@ -232,6 +235,40 @@ export default function LeafletMap({
       });
     }
   }, [isNavigating, navigationStep, currentRouteCoords]);
+
+  // Show user location marker
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    // Remove existing user marker
+    if (userMarkerRef.current) {
+      mapRef.current.removeLayer(userMarkerRef.current);
+      userMarkerRef.current = null;
+    }
+
+    if (userLocation) {
+      // Create pulsing blue dot for user location
+      userMarkerRef.current = L.marker([userLocation.lat, userLocation.lng], {
+        icon: L.divIcon({
+          className: 'user-location-marker',
+          html: `<div style="position:relative;">
+            <div style="position:absolute;width:40px;height:40px;background:rgba(59,130,246,0.25);border-radius:50%;animation:userPulse 2s infinite;top:-12px;left:-12px;"></div>
+            <div style="position:absolute;width:28px;height:28px;background:rgba(59,130,246,0.4);border-radius:50%;animation:userPulse 2s infinite 0.3s;top:-6px;left:-6px;"></div>
+            <div style="width:16px;height:16px;background:#3b82f6;border:3px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(59,130,246,0.5);"></div>
+          </div>`,
+          iconSize: [16, 16],
+          iconAnchor: [8, 8],
+        }),
+        zIndexOffset: 1000,
+      }).addTo(mapRef.current);
+
+      // Fly to user location with smooth animation
+      mapRef.current.flyTo([userLocation.lat, userLocation.lng], 16, {
+        animate: true,
+        duration: 1.2,
+      });
+    }
+  }, [userLocation]);
 
   return (
     <div className="absolute inset-0">
