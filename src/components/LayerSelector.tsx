@@ -18,7 +18,7 @@ export function LayerSelector({ currentStyle, onStyleChange }: LayerSelectorProp
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="absolute top-20 left-4 z-[1000]">
+    <div className="absolute top-20 left-6 z-[1000]">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-10 h-10 bg-background/95 backdrop-blur-sm rounded-lg shadow-lg border border-border flex items-center justify-center hover:bg-muted transition-colors"
