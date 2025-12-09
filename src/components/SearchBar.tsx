@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MapPin, Navigation, Search, ArrowRight, ChevronDown } from 'lucide-react';
+import { MapPin, Navigation, Search, ArrowRight, ChevronDown, Locate, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Destination } from './LeafletMap';
 
@@ -18,6 +18,56 @@ export function SearchBar({ onSearch, isSearching }: SearchBarProps) {
   const [selectedDestination, setSelectedDestination] = useState<Destination | ''>('');
   const [isOriginOpen, setIsOriginOpen] = useState(false);
   const [isDestOpen, setIsDestOpen] = useState(false);
+  const [originMode, setOriginMode] = useState<'sit' | 'current'>('sit');
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [currentLocation, setCurrentLocation] = useState<{ lat: number; lng: number } | null>(null);
+
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError('Geolocation is not supported by your browser');
+      return;
+    }
+
+    setIsLocating(true);
+    setLocationError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setCurrentLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+        setOriginMode('current');
+        setIsLocating(false);
+        setIsOriginOpen(false);
+      },
+      (error) => {
+        setIsLocating(false);
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            setLocationError('Location access denied');
+            break;
+          case error.POSITION_UNAVAILABLE:
+            setLocationError('Location unavailable');
+            break;
+          case error.TIMEOUT:
+            setLocationError('Location request timed out');
+            break;
+          default:
+            setLocationError('Unable to get location');
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
+
+  const getOriginLabel = () => {
+    if (originMode === 'current' && currentLocation) {
+      return 'Current Location';
+    }
+    return 'Singapore Institute of Technology';
+  };
 
   const handleSearch = () => {
     if (selectedDestination) {
@@ -44,7 +94,11 @@ export function SearchBar({ onSearch, isSearching }: SearchBarProps) {
           {/* Origin dropdown */}
           <div className="relative">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
-              <div className="h-2.5 w-2.5 rounded-full bg-primary" />
+              {originMode === 'current' ? (
+                <Locate className="h-3 w-3 text-primary" />
+              ) : (
+                <div className="h-2.5 w-2.5 rounded-full bg-primary" />
+              )}
             </div>
             <button
               onClick={() => setIsOriginOpen(!isOriginOpen)}
@@ -55,18 +109,47 @@ export function SearchBar({ onSearch, isSearching }: SearchBarProps) {
                 "transition-all duration-200"
               )}
             >
-              Singapore Institute of Technology
+              {getOriginLabel()}
             </button>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <ChevronDown className={cn(
+              "absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-transform",
+              isOriginOpen && "rotate-180"
+            )} />
             
             {isOriginOpen && (
               <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-lg z-50 overflow-hidden">
                 <div
-                  className="px-4 py-3 hover:bg-secondary/50 cursor-pointer text-sm"
-                  onClick={() => setIsOriginOpen(false)}
+                  className={cn(
+                    "px-4 py-3 hover:bg-secondary/50 cursor-pointer text-sm flex items-center gap-2",
+                    originMode === 'sit' && "bg-primary/10 text-primary"
+                  )}
+                  onClick={() => {
+                    setOriginMode('sit');
+                    setIsOriginOpen(false);
+                  }}
                 >
+                  <MapPin className="h-4 w-4" />
                   Singapore Institute of Technology
                 </div>
+                <div
+                  className={cn(
+                    "px-4 py-3 hover:bg-secondary/50 cursor-pointer text-sm flex items-center gap-2",
+                    originMode === 'current' && currentLocation && "bg-primary/10 text-primary"
+                  )}
+                  onClick={handleUseCurrentLocation}
+                >
+                  {isLocating ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Locate className="h-4 w-4" />
+                  )}
+                  {isLocating ? 'Getting location...' : 'Use current location'}
+                </div>
+                {locationError && (
+                  <div className="px-4 py-2 text-xs text-destructive bg-destructive/10">
+                    {locationError}
+                  </div>
+                )}
               </div>
             )}
           </div>
