@@ -61,7 +61,7 @@ export function SearchBar({ onSearch, isSearching, onLocationChange }: SearchBar
             setLocationError('Unable to get location');
         }
       },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   };
 
@@ -128,6 +128,8 @@ export function SearchBar({ onSearch, isSearching, onLocationChange }: SearchBar
                   )}
                   onClick={() => {
                     setOriginMode('sit');
+                    setCurrentLocation(null);
+                    onLocationChange?.(null);
                     setIsOriginOpen(false);
                   }}
                 >
