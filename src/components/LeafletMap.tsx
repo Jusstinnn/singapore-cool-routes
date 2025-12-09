@@ -1,6 +1,23 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { Compass } from './Compass';
+import { LayerSelector, MapStyle } from './LayerSelector';
+
+// Map tile URLs for different styles
+const MAP_TILES: Record<MapStyle, { url: string; attribution: string }> = {
+  classic: {
+    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    attribution: '© OpenStreetMap',
+  },
+  dark: {
+    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    attribution: '© OpenStreetMap',
+  },
+  '3d': {
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/{z}/{y}/{x}',
+    attribution: '© Esri',
+  },
+};
 
 // Singapore Institute of Technology (Punggol Campus)
 const SIT_PUNGGOL: L.LatLngExpression = [1.3784, 103.9097];
@@ -52,6 +69,9 @@ export default function LeafletMap({
   const containerRef = useRef<HTMLDivElement>(null);
   const routeLayersRef = useRef<L.LayerGroup | null>(null);
 
+  const [mapStyle, setMapStyle] = useState<MapStyle>('classic');
+  const tileLayerRef = useRef<L.TileLayer | null>(null);
+
   // Initialize map
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -63,8 +83,9 @@ export default function LeafletMap({
       attributionControl: false,
     });
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-      attribution: '© OpenStreetMap',
+    const tileConfig = MAP_TILES[mapStyle];
+    tileLayerRef.current = L.tileLayer(tileConfig.url, {
+      attribution: tileConfig.attribution,
     }).addTo(mapRef.current);
 
     routeLayersRef.current = L.layerGroup().addTo(mapRef.current);
@@ -76,6 +97,20 @@ export default function LeafletMap({
       }
     };
   }, []);
+
+  // Update tile layer when style changes
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    if (tileLayerRef.current) {
+      mapRef.current.removeLayer(tileLayerRef.current);
+    }
+
+    const tileConfig = MAP_TILES[mapStyle];
+    tileLayerRef.current = L.tileLayer(tileConfig.url, {
+      attribution: tileConfig.attribution,
+    }).addTo(mapRef.current);
+  }, [mapStyle]);
 
   // Update routes
   useEffect(() => {
@@ -205,6 +240,7 @@ export default function LeafletMap({
         className="absolute inset-0 z-0"
       />
       <Compass />
+      <LayerSelector currentStyle={mapStyle} onStyleChange={setMapStyle} />
     </div>
   );
 }
