@@ -6,7 +6,7 @@
 
 ## 🔗 Project Info
 
-**Project URL:** https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+**Project URL:** https://shadewalksg.lovable.app/
 
 ---
 
