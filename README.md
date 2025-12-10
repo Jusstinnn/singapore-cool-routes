@@ -52,9 +52,10 @@ You can edit the project in several ways:
 
 ### Option 1: Use Lovable
 
-1. Visit the project at: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID  
-2. Start prompting to make changes  
-3. Changes will be automatically committed to this repository  
+1. Visit the project at: https://shadewalksg.lovable.app/
+2. 
+3. Start prompting to make changes  
+4. Changes will be automatically committed to this repository  
 
 ### Option 2: Use Your Preferred IDE
 
